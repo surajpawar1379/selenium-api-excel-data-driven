@@ -42,44 +42,31 @@ public class excelDataDriven {
 
 					if (value.getStringCellValue().equalsIgnoreCase("TestCases")) {
 						coloumn = k;
-
 					}
-
 					k++;
 				}
 				System.out.println(coloumn);
-
 				//// once coloumn is identified then scan entire testcase coloum to identify
 				/// purcjhase testcase row
 				while (rows.hasNext()) {
-
 					Row r = rows.next();
-
 					if (r.getCell(coloumn).getStringCellValue().equalsIgnoreCase(testcaseName)) {
-
 						//// after you grab purchase testcase row = pull all the data of that row and
 						/// feed into test
-
 						Iterator<Cell> cv = r.cellIterator();
 						while (cv.hasNext()) {
 							Cell c = cv.next();
 							if (c.getCellType() == CellType.STRING) {
-
 								a.add(c.getStringCellValue());
 							} else {
-
 								a.add(NumberToTextConverter.toText(c.getNumericCellValue()));
-
 							}
 						}
 					}
-
 				}
-
 			}
 		}
 		return a;
-
 	}
 
 	public static void main(String[] args) throws IOException {

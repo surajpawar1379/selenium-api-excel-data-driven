@@ -31,6 +31,7 @@ public class excelDriven {
 		JsonPath js = ReUsableMethods.rawToJson(resp);
 		String id = js.get("ID");
 		System.out.println(id);
+		System.out.println("Understanding git concept");
 		// Create a place =response (place id)
 		// delete Place = (Request - Place id)
 	}

@@ -24,7 +24,10 @@ public class StepDefinitions {
 	@Before
 	public void setUp() {
 		ChromeOptions options = new ChromeOptions();
-//		options.addArguments("--headless=new", "--disable-gpu", "--window-size=1920,1080");
+		if (Boolean.parseBoolean(System.getProperty("headless", "false"))) {
+			options.addArguments("--headless=new", "--disable-gpu", "--window-size=1920,1080",
+					"--no-sandbox", "--disable-dev-shm-usage");
+		}
 		driver = new ChromeDriver(options);
 		loginPage    = new LoginPage(driver);
 		loggedInPage = new LoggedInPage(driver);

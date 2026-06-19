@@ -1,0 +1,103 @@
+name: CI/CD - Test Suite
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+
+jobs:
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Job 1 — RestAPI (TestNG + REST Assured)
+  # ─────────────────────────────────────────────────────────────────────────
+  restapi-tests:
+    name: RestAPI Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Java 24
+        uses: actions/setup-java@v4
+        with:
+          java-version: '24'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Create test product image
+        # Minimal valid 1×1 JPEG — avoids committing a binary to the repo
+        run: |
+          mkdir -p RestAPI/test-data
+          echo "/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDB\
+kSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/wAARCAABAAEDASIA\
+AhEBAxEB/8QAFAABAAAAAAAAAAAAAAAAAAAACf/EABQQAQAAAAAAAAAAAAAAAAAAAAD/xAAUAQEA\
+AAAAAAAAAAAAAAAAAAAA/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8AJQAB/9k=" \
+          | base64 -d > RestAPI/test-data/product-image.jpeg
+
+      - name: Run RestAPI Tests
+        working-directory: RestAPI
+        run: mvn test
+
+      - name: Upload ExtentReport
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: restapi-extent-report
+          path: RestAPI/target/extentreports/
+          if-no-files-found: warn
+
+      - name: Upload Surefire Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: restapi-surefire-report
+          path: RestAPI/target/surefire-reports/
+          if-no-files-found: warn
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Job 2 — SampleTest (Cucumber + Selenium + JUnit)
+  # ─────────────────────────────────────────────────────────────────────────
+  sampletest-tests:
+    name: SampleTest (Cucumber + Selenium)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Java 24
+        uses: actions/setup-java@v4
+        with:
+          java-version: '24'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Set up Chrome
+        uses: browser-actions/setup-chrome@v1
+
+      - name: Run SampleTest Tests (headless)
+        working-directory: SampleTest
+        run: mvn test -Dheadless=true
+
+      - name: Generate Cucumber HTML Report
+        working-directory: SampleTest
+        if: always()
+        run: mvn verify -DskipTests -Dheadless=true
+
+      - name: Upload ExtentReport (Spark)
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sampletest-extent-report
+          path: SampleTest/target/ExtentReport/
+          if-no-files-found: warn
+
+      - name: Upload Cucumber HTML Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sampletest-cucumber-html-report
+          path: SampleTest/target/cucumber-html-reports/
+          if-no-files-found: warn

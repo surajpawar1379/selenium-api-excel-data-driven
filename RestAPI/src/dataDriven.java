@@ -9,6 +9,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.NumberToTextConverter;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import resources.ConfigReader;
 
 public class dataDriven {
 	
@@ -21,7 +22,7 @@ public class dataDriven {
 		//fileInputStream argument
 				ArrayList<String> a=new ArrayList<String>();
 				
-				FileInputStream fis=new FileInputStream("C://Users//suraj//eclipse-workspace//RestAPI//src//files//demodata.xlsx");
+				FileInputStream fis=new FileInputStream(ConfigReader.get("excel.data.file"));
 				XSSFWorkbook workbook=new XSSFWorkbook(fis);
 				
 				int sheets=workbook.getNumberOfSheets();
